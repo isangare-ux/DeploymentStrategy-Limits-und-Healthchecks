@@ -1,0 +1,75 @@
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: echo-portal-deployment
+  namespace: strategy-lab
+  labels:
+    apps: echo-server
+
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: echo-server
+
+
+  strategy: 
+    type: Recreate
+#    rollingUpdate:
+#      maxUnavailable: 1
+#      maxSurge: 1
+
+
+
+  template:
+    metadata:
+      labels:
+        app: echo-server
+
+
+    spec:
+      containers:
+        - name: echoserver
+          image: ealen/echo-server:0.9.2
+          imagePullPolicy: IfNotPresent
+
+          env: 
+            - name: APP_VERSION
+              value: "v3"
+
+          resources:
+            requests: 
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+            periodSeconds: 10
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP

@@ -1,0 +1,15 @@
+# https://kubernetes.io/docs/concepts/services-networking/service/
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo-portal-service
+  namespace: strategy-lab
+spec:
+  selector:
+    app: echo-server
+
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
